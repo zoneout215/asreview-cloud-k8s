@@ -7,14 +7,17 @@ RUN apt-get update && \
     && pip install pika
 
 #### Don't modify above this line
-COPY data /app/data
+RUN pip install synergy-dataset
+RUN mkdir -p /app/data
+RUN synergy get -l -o ./app/data
 
-# This is necessary until a new asreview-makita is released and the asreview image is updated
+# Temporary, while a new release is not done
 RUN apt-get update && \
-    apt-get install -y git \
-       --no-install-recommends \
-    && rm -rf /var/lib/apt/lists/* \
-    && pip install git+https://github.com/abelsiqueira/asreview-makita@29-fix-broken-comment-line
+    apt-get install -y git && \
+    rm -rf /var/lib/apt/lists/* && \
+    pip install --upgrade git+https://github.com/abelsiqueira/asreview-makita@patch-1
+
+COPY ./custom_arfi.txt.template /app/custom_arfi.txt.template
 #### Don't modify below this line
 
 COPY ./split-file.py /app/split-file.py

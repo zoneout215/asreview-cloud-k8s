@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 import os
-import pika
-import time
 import sys
+
+import pika
 
 RABBITMQ_HOST = os.environ.get("RABBITMQ_HOST", "localhost")
 RABBITMQ_PORT = int(os.environ.get("RABBITMQ_PORT", "5672"))
@@ -19,7 +19,11 @@ class Tasker(object):
 
         credentials = pika.PlainCredentials(RABBITMQ_USER, RABBITMQ_PASS)
         parameters = pika.ConnectionParameters(
-            RABBITMQ_HOST, RABBITMQ_PORT, "/", credentials
+            RABBITMQ_HOST,
+            RABBITMQ_PORT,
+            "/",
+            credentials,
+            heartbeat=3600,
         )
 
         self.connection = pika.BlockingConnection(parameters)
@@ -46,7 +50,9 @@ class Tasker(object):
                 )
                 self.sent_messages += 1
 
-        channel.basic_consume("tasker", on_message_callback=self.callback, auto_ack=True)
+        channel.basic_consume(
+            "tasker", on_message_callback=self.callback, auto_ack=True
+        )
         channel.start_consuming()
 
     def callback(self, ch, method, properties, body):

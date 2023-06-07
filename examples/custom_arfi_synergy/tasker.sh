@@ -13,6 +13,7 @@ rm -rf /app/workdir/*
 # Copy files from the parent folder for the workdir.
 cp ../*.sh ../*.py ./
 cp -r ../data ./
+cp ../custom_arfi.txt.template ./
 
 # Create a logging function
 function log {
@@ -21,7 +22,11 @@ function log {
 
 # Run makita
 log "Running makita"
-asreview makita template arfi -f jobs.sh
+
+SETTINGS=""
+# SETTINGS="-m nb -e tfidf"
+asreview makita template arfi --template custom_arfi.txt.template -f jobs.sh
+sed -i "s/SETTINGS_PLACEHOLDER/$SETTINGS/g" jobs.sh
 
 # Split the `jobs.sh` file
 log "Splitting file"
